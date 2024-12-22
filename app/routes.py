@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, redirect, url_for, flash, request
+from flask import Blueprint, render_template, redirect, url_for, flash, request, send_from_directory
 from flask_login import login_user, logout_user, login_required, current_user
 from werkzeug.utils import secure_filename
 from app import db
@@ -50,6 +50,12 @@ def upload():
         flash('Archivo subido con éxito.', 'success')
         return redirect(url_for('routes.index'))
     return render_template('upload.html', form=form)
+
+# Ruta para servir archivos desde el directorio uploads
+@bp.route('/uploads/<filename>')
+@login_required
+def download_file(filename):
+    return send_from_directory(os.path.join(os.getcwd(), 'uploads'), filename)
 
 @bp.route('/delete/<filename>', methods=['POST'])
 @login_required

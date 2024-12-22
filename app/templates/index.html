@@ -18,8 +18,8 @@
                 <tr>
                     <td>{{ file }}</td>
                     <td>
-                        <a href="{{ url_for('static', filename='uploads/' + file) }}" class="btn btn-primary btn-sm">Descargar</a>
-                        <form method="POST" action="{{ url_for('delete', filename=file) }}" class="d-inline">
+                        <a href="{{ url_for('routes.download_file', filename=file) }}" class="btn btn-primary btn-sm">Descargar</a>
+                        <form method="POST" action="{{ url_for('routes.delete', filename=file) }}" class="d-inline">
                             <button type="submit" class="btn btn-danger btn-sm">Eliminar</button>
                         </form>
                     </td>

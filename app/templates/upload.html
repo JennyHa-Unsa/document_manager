@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-12">
+        <h2 class="mb-4">Subir Nuevo Documento</h2>
+        <form method="POST" enctype="multipart/form-data">
+            {{ form.hidden_tag() }}
+            <div class="form-group">
+                <label for="file">Selecciona un archivo para subir:</label>
+                {{ form.file(class="form-control") }}
+            </div>
+            <button type="submit" class="btn btn-primary">Subir Archivo</button>
+        </form>
+    </div>
+</div>
+{% endblock %}
