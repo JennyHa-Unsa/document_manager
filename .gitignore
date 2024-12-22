@@ -1,0 +1,80 @@
+# Archivos y carpetas de Flask 
+#instance/ 
+flask_session/
+# Entorno virtual
+venv/
+ENV/
+env/
+.venv/
+.ENV/
+
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# C extensions
+*.so
+
+# Distribution / packaging
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Archivos de configuración
+*.cfg
+
+# Coverage reports
+htmlcov/
+.tox/
+.coverage
+coverage.xml
+*.cover
+*.py,cover
+
+# Test logs
+nosetests.xml
+coverage.xml
+*.cover
+*.py,cover
+
+# Translations
+*.mo
+*.pot
+
+# Editor/IDE specific files
+.vscode/
+.idea/
+*.sublime-workspace
+*.sublime-project
+
+# Jupyter Notebook
+.ipynb_checkpoints/
+
+# Pyre type checker
+.pyre/
+
+# Mypy
+.mypy_cache/
+
+# Pipenv
+*.lock
+pip-wheel-metadata/
+*.whl
+
+# Anaconda
+.env/
+.conda/
