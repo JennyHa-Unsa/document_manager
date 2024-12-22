@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-12">
+        <h2 class="mb-4">Documentos Disponibles</h2>
+        <a href="{{ url_for('routes.upload') }}" class="btn btn-success mb-3">Subir Nuevo Documento</a>
+        {% if files %}
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Nombre del Archivo</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for file in files %}
+                <tr>
+                    <td>{{ file }}</td>
+                    <td>
+                        <a href="{{ url_for('static', filename='uploads/' + file) }}" class="btn btn-primary btn-sm">Descargar</a>
+                        <form method="POST" action="{{ url_for('delete', filename=file) }}" class="d-inline">
+                            <button type="submit" class="btn btn-danger btn-sm">Eliminar</button>
+                        </form>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <p>No hay documentos disponibles.</p>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
