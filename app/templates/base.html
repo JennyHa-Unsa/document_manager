@@ -9,7 +9,13 @@
 <body>
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
         <div class="container-fluid">
-            <a class="navbar-brand" href="{{ url_for('routes.index') }}">Gestor de Documentos</a>
+            <a class="navbar-brand" href="{{ url_for('routes.index') }}">
+                Gestor de Documentos
+            </a>
+            {% if current_user.is_authenticated %}
+                <span class="ms-3" style="color: #ddd;">::</span>
+                <span class="ms-3" style="color: #ddd;">Bienvenido, {{ current_user.username }}</span>
+                {% endif %}
             {% if current_user.is_authenticated %}
             <ul class="navbar-nav ms-auto">
                 <li class="nav-item">
@@ -19,6 +25,8 @@
             {% endif %}
         </div>
     </nav>
+    
+    
 
     <div class="container mt-4">
         {% with messages = get_flashed_messages(with_categories=true) %}
