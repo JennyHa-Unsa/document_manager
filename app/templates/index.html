@@ -4,7 +4,10 @@
 <div class="row">
     <div class="col-md-12">
         <h2 class="mb-4">Documentos Disponibles</h2>
+        {% if current_user.role.name == 'Editor' or current_user.role.name == 'Administrador' %}
         <a href="{{ url_for('routes.upload') }}" class="btn btn-success mb-3">Subir Nuevo Documento</a>
+        {% endif %}
+        
         {% if files %}
         <table class="table table-striped">
             <thead>
@@ -19,9 +22,11 @@
                     <td>{{ file }}</td>
                     <td>
                         <a href="{{ url_for('routes.download_file', filename=file) }}" class="btn btn-primary btn-sm">Descargar</a>
+                        {% if current_user.role.name == 'Editor' or current_user.role.name == 'Administrador' %}
                         <form method="POST" action="{{ url_for('routes.delete', filename=file) }}" class="d-inline">
                             <button type="submit" class="btn btn-danger btn-sm">Eliminar</button>
                         </form>
+                        {% endif %}
                     </td>
                 </tr>
                 {% endfor %}

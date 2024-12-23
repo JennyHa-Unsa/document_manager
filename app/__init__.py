@@ -6,7 +6,7 @@ from config import Config
 # Inicialización de extensiones
 db = SQLAlchemy()
 login_manager = LoginManager()
-login_manager.login_view = 'login'
+
 
 def create_app():
     app = Flask(__name__)
@@ -17,6 +17,13 @@ def create_app():
     # Inicializar extensiones con la aplicación
     db.init_app(app)
     login_manager.init_app(app)
+
+    # Registrar la función user_loader
+    # Importar dentro de la función para evitar la importación circular
+    from app.models import User
+    @login_manager.user_loader
+    def load_user(user_id):
+        return User.query.get(int(user_id))
 
     # Importar y registrar blueprints o rutas
     from app import routes

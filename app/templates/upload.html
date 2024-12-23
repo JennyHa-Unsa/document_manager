@@ -4,6 +4,7 @@
 <div class="row">
     <div class="col-md-12">
         <h2 class="mb-4">Subir Nuevo Documento</h2>
+        {% if current_user.role.name == 'Editor' or current_user.role.name == 'Administrador' %}
         <form method="POST" enctype="multipart/form-data">
             {{ form.hidden_tag() }}
             <div class="form-group">
@@ -12,6 +13,9 @@
             </div>
             <button type="submit" class="btn btn-primary">Subir Archivo</button>
         </form>
+        {% else %}
+        <p>No tienes permisos para subir archivos.</p>
+        {% endif %}
     </div>
 </div>
 {% endblock %}
