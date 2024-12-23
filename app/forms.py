@@ -1,5 +1,5 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, PasswordField, SubmitField, FileField
+from wtforms import StringField, PasswordField, SubmitField, FileField, BooleanField
 from wtforms.validators import DataRequired
 
 class LoginForm(FlaskForm):
@@ -9,4 +9,5 @@ class LoginForm(FlaskForm):
 
 class UploadForm(FlaskForm):
     file = FileField('Archivo', validators=[DataRequired()])
+    is_public = BooleanField('¿Hacer público?', default=False)  # Campo añadido para marcar si el archivo será público
     submit = SubmitField('Subir')

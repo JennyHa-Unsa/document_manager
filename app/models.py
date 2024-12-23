@@ -1,6 +1,7 @@
 from flask_login import UserMixin
 from app import db
 from werkzeug.security import generate_password_hash, check_password_hash
+from datetime import datetime
 
 # Tabla para los usuarios
 class User(UserMixin, db.Model):
@@ -53,7 +54,7 @@ class Document(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     filename = db.Column(db.String(200), nullable=False)
     path = db.Column(db.String(500), nullable=False)
-    created_at = db.Column(db.DateTime, nullable=False)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
     is_public = db.Column(db.Boolean, default=False, nullable=False)
     
     # Relación con el propietario (usuario que subió el archivo)

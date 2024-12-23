@@ -40,18 +40,31 @@ def logout():
 @bp.route('/index')
 @login_required
 def index():
-    # Filtrar documentos públicos y mostrarlos solo a los usuarios que tienen acceso
+    # Inicializar una lista vacía para los archivos
     files = []
-    if has_permission('leer'):
-        # Si el usuario tiene el permiso de leer, mostrar documentos públicos
+
+    # Si el usuario tiene el rol de 'Lector', solo se muestran documentos públicos
+    if current_user.role.name == 'Lector':
         documents = Document.query.filter_by(is_public=True).all()
-        files = [doc.filename for doc in documents]
+        files = [(doc.filename, doc.is_public, doc.owner.username) for doc in documents]
+    
+    # Si el usuario tiene el rol de 'Editor', mostrar documentos públicos y los que es propietario
+    elif current_user.role.name == 'Editor':
+        documents = Document.query.filter((Document.is_public == True) | (Document.owner_id == current_user.id)).all()
+        files = [(doc.filename, doc.is_public, doc.owner.username) for doc in documents]
+    
+    # Si el usuario tiene el rol de 'Administrador', mostrar todos los documentos
+    elif current_user.role.name == 'Administrador':
+        documents = Document.query.all()
+        files = [(doc.filename, doc.is_public, doc.owner.username) for doc in documents]
+
     return render_template('index.html', files=files)
+
 
 @bp.route('/upload', methods=['GET', 'POST'])
 @login_required
 def upload():
-    if not has_permission('subir'):
+    if not has_permission('write'):
         flash('No tienes permiso para subir documentos.', 'danger')
         return redirect(url_for('routes.index'))
     
@@ -62,8 +75,11 @@ def upload():
         file_path = os.path.join(os.getcwd(), 'uploads', filename)
         file.save(file_path)
 
+        # Obtener si el archivo es público
+        is_public = form.is_public.data
+
         # Guardar el documento en la base de datos
-        document = Document(filename=filename, path=file_path, owner_id=current_user.id, is_public=False)
+        document = Document(filename=filename, path=file_path, owner_id=current_user.id, is_public=is_public)
         db.session.add(document)
         db.session.commit()
 
@@ -82,7 +98,7 @@ def download_file(filename):
         return redirect(url_for('routes.index'))
 
     # Verificar si el usuario tiene acceso al archivo
-    if not has_permission('descargar') or (document.owner_id != current_user.id and not has_permission('administrar')):
+    if not has_permission('write') or (document.owner_id != current_user.id and not has_permission('manage_users')):
         flash('No tienes permiso para descargar este documento.', 'danger')
         return redirect(url_for('routes.index'))
 
@@ -98,7 +114,7 @@ def delete(filename):
         return redirect(url_for('routes.index'))
 
     # Verificar permisos de eliminación
-    if current_user.id == document.owner_id or has_permission('administrar'):
+    if current_user.id == document.owner_id or has_permission('manage_users'):
         # Eliminar el archivo de la base de datos y del sistema de archivos
         os.remove(document.path)
         db.session.delete(document)

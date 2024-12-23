@@ -11,6 +11,11 @@
                 <label for="file">Selecciona un archivo para subir:</label>
                 {{ form.file(class="form-control") }}
             </div>
+            <div class="form-check">
+                <label class="form-check-label">
+                    {{ form.is_public() }} ¿Hacer el archivo público?
+                </label>
+            </div>
             <button type="submit" class="btn btn-primary">Subir Archivo</button>
         </form>
         {% else %}

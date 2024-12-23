@@ -13,21 +13,25 @@
             <thead>
                 <tr>
                     <th>Nombre del Archivo</th>
+                    <th>Es Público</th>
+                    <th>Propietario</th>
                     <th>Acciones</th>
                 </tr>
             </thead>
             <tbody>
-                {% for file in files %}
+                {% for file, is_public, owner_name in files %}
                 <tr>
                     <td>{{ file }}</td>
+                    <td>{{ 'Sí' if is_public else 'No' }}</td>
+                    <td>{{ owner_name }}</td>
                     <td>
                         <a href="{{ url_for('routes.download_file', filename=file) }}" class="btn btn-primary btn-sm">Descargar</a>
-                        {% if current_user.role.name == 'Editor' or current_user.role.name == 'Administrador' %}
+                        {% if current_user.role.name == 'Administrador' or owner_name == current_user.username %}
                         <form method="POST" action="{{ url_for('routes.delete', filename=file) }}" class="d-inline">
                             <button type="submit" class="btn btn-danger btn-sm">Eliminar</button>
                         </form>
                         {% endif %}
-                    </td>
+                    </td>                    
                 </tr>
                 {% endfor %}
             </tbody>
