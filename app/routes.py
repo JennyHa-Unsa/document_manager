@@ -5,6 +5,7 @@ from app import db
 from app.forms import LoginForm, UploadForm
 from app.models import User, Document, Role, Permission, DocumentAccess
 import os
+from cryptography.fernet import Fernet
 
 # Crear un Blueprint para las rutas
 bp = Blueprint('routes', __name__)
@@ -12,6 +13,45 @@ bp = Blueprint('routes', __name__)
 # Función para verificar si el usuario tiene el permiso adecuado
 def has_permission(permission_name):
     return any(permission.name == permission_name for permission in current_user.role.permissions)
+
+# Función para cargar la clave de cifrado
+def load_key():
+    return open("secret.key", "rb").read()
+
+# Instanciar el objeto Fernet
+def get_fernet():
+    key = load_key()
+    return Fernet(key)
+
+# Función para cifrar el archivo
+def encrypt_file(file_path):
+    fernet = get_fernet()
+
+    with open(file_path, "rb") as file:
+        file_data = file.read()
+
+    encrypted_data = fernet.encrypt(file_data)
+
+    with open(file_path, "wb") as encrypted_file:
+        encrypted_file.write(encrypted_data)
+
+# Función para descifrar el archivo
+def decrypt_file(file_path):
+    fernet = get_fernet()
+
+    # Abrir el archivo cifrado
+    with open(file_path, "rb") as file:
+        encrypted_data = file.read()
+
+    # Descifrar los datos
+    decrypted_data = fernet.decrypt(encrypted_data)
+
+    # Guardar el archivo descifrado en una ubicación temporal
+    decrypted_file_path = file_path + ".decrypted"
+    with open(decrypted_file_path, "wb") as decrypted_file:
+        decrypted_file.write(decrypted_data)
+
+    return decrypted_file_path
 
 @bp.route('/')
 def home():
@@ -40,7 +80,6 @@ def logout():
 @bp.route('/index')
 @login_required
 def index():
-    # Inicializar una lista vacía para los archivos
     files = []
 
     # Si el usuario tiene el rol de 'Lector', solo se muestran documentos públicos
@@ -78,12 +117,15 @@ def upload():
         # Obtener si el archivo es público
         is_public = form.is_public.data
 
+        # Cifrar el archivo
+        encrypt_file(file_path)
+
         # Guardar el documento en la base de datos
         document = Document(filename=filename, path=file_path, owner_id=current_user.id, is_public=is_public)
         db.session.add(document)
         db.session.commit()
 
-        flash('Archivo subido con éxito.', 'success')
+        flash('Archivo subido y cifrado con éxito.', 'success')
         return redirect(url_for('routes.index'))
     
     return render_template('upload.html', form=form)
@@ -91,18 +133,22 @@ def upload():
 @bp.route('/uploads/<filename>')
 @login_required
 def download_file(filename):
-    # Verificar si el usuario tiene permiso para descargar el archivo
+    # Verificar si el documento existe
     document = Document.query.filter_by(filename=filename).first()
     if not document:
         flash('Documento no encontrado.', 'danger')
         return redirect(url_for('routes.index'))
 
-    # Verificar si el usuario tiene acceso al archivo
+    # Verificar permisos de descarga
     if not has_permission('write') or (document.owner_id != current_user.id and not has_permission('manage_users')):
         flash('No tienes permiso para descargar este documento.', 'danger')
         return redirect(url_for('routes.index'))
 
-    return send_from_directory(os.path.join(os.getcwd(), 'uploads'), filename)
+    # Descifrar el archivo antes de enviarlo
+    decrypted_file_path = decrypt_file(document.path)
+
+    # Enviar el archivo descifrado
+    return send_from_directory(os.path.dirname(decrypted_file_path), filename)
 
 @bp.route('/delete/<filename>', methods=['POST'])
 @login_required
